@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>tracking.js - face with camera</title>
+
+  <script src="./lib/tracking.js-master/build/tracking-min.js"></script>
+  <script src="./lib/tracking.js-master/build/data/face-min.js"></script>
+
+  <style>
+   video, canvas { 
+     margin-left: 230px; 
+     margin-top: 120px; 
+     position: absolute; 
+     visibility: hidden;
+   } 
+  </style>
+</head>
+<body>
+
+  <div class="demo-frame">
+    <div class="demo-container">
+      <video id="video" width="320" height="240" visibility="hidden" preload autoplay loop muted></video>
+      <canvas id="canvas" width="320" height="240"></canvas>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      var video = document.getElementById('video');
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+
+      var tracker = new tracking.ObjectTracker('face');
+      tracker.setInitialScale(4);
+      tracker.setStepSize(2);
+      tracker.setEdgesDensity(0.1);
+
+      tracking.track('#video', tracker, { camera: true });
+
+      tracker.on('track', function(event) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        event.data.forEach(function(rect) {
+          console.log(rect.x, rect.y, rect.width, rect.height);
+          context.strokeStyle = '#a64ceb';
+          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+        });
+      });
+    };
+  </script>
+
+</body>
+</html>
