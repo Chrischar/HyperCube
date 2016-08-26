@@ -1,5 +1,6 @@
 import cv2
 import sys
+import pyglet
 
 cascade_path = sys.argv[1]
 classifier = cv2.CascadeClassifier(cascade_path)
@@ -8,13 +9,17 @@ classifier = cv2.CascadeClassifier(cascade_path)
 video_capture = cv2.VideoCapture(0)
 
 # Scale the video down to size so as not to break performance
-video_capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 640)
+video_capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 480)
 video_capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 360)
 
-while True:
-    # Capture frame-by-frame
-    ret, frame = video_capture.read()
+window = pyglet.window.Window(width=480, height=360)
 
+image = pyglet.resource.image('player.png')
+
+@window.event
+def on_draw():
+    window.clear()
+    ret, frame = video_capture.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     faces = classifier.detectMultiScale(
@@ -25,17 +30,18 @@ while True:
         flags=cv2.cv.CV_HAAR_SCALE_IMAGE
     )
 
-    # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
         print x, y, w, h
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        image.blit(480 - x, 360 - y)
+        image.blit(480 - x - w , 360 - y)
+        image.blit(480 - x - w, 360 - y - h)
+        image.blit(480 - x, 360 - y - h)
 
-    # Display the resulting frame
-    cv2.imshow('Video', frame)
+def update(dt):
+    on_draw()
+    
+if __name__ == "__main__":
+    pyglet.clock.schedule_interval(update, 1/30)
+    pyglet.app.run()
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
-# When everything is done, release the capture
-video_capture.release()
-cv2.destroyAllWindows()
