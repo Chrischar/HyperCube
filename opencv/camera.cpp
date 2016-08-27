@@ -14,7 +14,7 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade);
 String face_cascade_file    = "haarcascade_frontalface_alt.xml";
 String window_name          = "Face Detection!";
 
-int main (int argc, char **argv)
+int setup(int argc, char **argv)
 {
     CascadeClassifier face_cascade;
 
@@ -103,5 +103,5 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
     circle(frame, center, 10, Scalar(255, 0, 0), 4, 8, 0);
 
     // show
-    imshow (window_name, frame);
+    imshow(window_name, frame);
 }
