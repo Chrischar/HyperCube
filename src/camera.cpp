@@ -1,53 +1,30 @@
-#include "opencv2/objdetect.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
+#include "camera.h"
 
 #include <iostream>
 
 using namespace std;
-using namespace cv;
 
-static int setup_cascade(CascadeClassifier& face_cascad);
-static int setup_capture(VideoCapture& capture);
-static void detectFrame(Mat frame, CascadeClassifier& face_cascade);
 
-String face_cascade_file    = "resources/haarcascade_frontalface_alt.xml";
-
-int setup(int argc, char **argv)
+Camera::Camera(void)
 {
+    face_cascade_file = "resources/haarcascade_frontalface_alt.xml";
     CascadeClassifier face_cascade;
 
-    if (!setup_cascade(face_cascade)) {
-        return 1;
+    if (!setup_cascade()) {
+        return;
     }
 
     VideoCapture capture;
 
-    if (!setup_capture(capture)) {
-        return 1;
+    if (!setup_capture()) {
+        return;
     }
-    
-    capture.set(CV_CAP_PROP_FRAME_WIDTH, 480);
-    capture.set(CV_CAP_PROP_FRAME_HEIGHT, 360);
 
-    Mat frame;
-    while (capture.read(frame)) {
-        if (frame.empty()) {
-            cout << "No image captured." << endl;
-            break;
-        }
-
-        detectFrame(frame, face_cascade);
-
-        if (waitKey(10) == 27) {
-            // escape key - exit
-            break;
-        }
-    }
-    return 0;
+    capture.set(CV_CAP_PROP_FRAME_WIDTH, SCREEN_WIDTH);
+    capture.set(CV_CAP_PROP_FRAME_HEIGHT, SCREEN_DEPTH);
 }
 
-static int setup_cascade(CascadeClassifier& face_cascade)
+int Camera::setup_cascade(void)
 {
     if (!face_cascade.load(face_cascade_file)) {
         cout << "Could not load face cascade." << endl;
@@ -57,7 +34,7 @@ static int setup_cascade(CascadeClassifier& face_cascade)
     return 1;
 }
 
-static int setup_capture(VideoCapture& capture)
+int Camera::setup_capture()
 {
     capture.open(-1);
     if (!capture.isOpened()) {
@@ -68,8 +45,9 @@ static int setup_capture(VideoCapture& capture)
     return 1;
 }
 
-static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
+void Camera::getCoordinates(Client& client)
 {
+    capture.read(frame);
     vector<Rect> faces;
     Mat frame_gray;
 
@@ -79,7 +57,7 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
     // detect face
     face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
             CASCADE_SCALE_IMAGE, Size(30, 30));
-    
+
     //checks for no faces
     if (faces.size() == 0) {
         return;
@@ -96,7 +74,8 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
         }
     }
 
-    setCoordinates(biggest_face.x + biggest_face.width / 2, biggest_face.y +
-            biggest_face.height/3, biggest_face.width, biggest_face.height);
+    client.setCoordinates(biggest_face.x + biggest_face.width / 2,
+        biggest_face.y + biggest_face.height/3, biggest_face.width,
+        biggest_face.height);
 
 }
