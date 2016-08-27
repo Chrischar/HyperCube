@@ -1,19 +1,19 @@
-#include "server.h"
+#include "client.h"
 #include "camera.h"
 #include <cmath>
 
-Server::Server(void)
+Client::Client(void)
 {
     x = 0.0;
     y = 0.0;
     z = 0.0;
 }
 
-Server::~Server(void)
+Client::~Client(void)
 {
 }
 
-void Server::setCoordinates(int x, int y, int width, int height)
+void Client::setCoordinates(int x, int y, int width, int height)
 {
     double r = 1 / width;
     x = (SCREEN_WIDTH / 2) - x;
@@ -25,7 +25,7 @@ void Server::setCoordinates(int x, int y, int width, int height)
     this->z = r; // * std::sqrt(r*r - x*x - y*y);
 }
 
-void Server::getCoordinates(double& x, double& y, double& z)
+void Client::getCoordinates(double& x, double& y, double& z)
 {
     x = this->x;
     y = this->y;
