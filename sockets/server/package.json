@@ -1,0 +1,9 @@
+{
+	"name" : "hypercube-node-server",
+	"version" : "0.0.1",
+	"dependencies" : 
+		{
+			"socket.io" : "1.4.5",
+			"express" : "4.14.0"
+		}
+}
