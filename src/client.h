@@ -10,9 +10,8 @@ class Client {
     std::mutex my_lock;
 public:
     Client (void);
-    ~Client (void);
-    void setCoordinates (int x, int y, int width, int height);
-    void getCoordinates (double& x, double& y, double& z);
+    void setCoordinates(double x, double y, int width);
+    void getCoordinates(double* x, double* y, double* z);
 };
 
 #endif
