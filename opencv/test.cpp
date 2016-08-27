@@ -76,12 +76,27 @@ static void detectFrame (Mat frame, CascadeClassifier& face_cascade)
     // detect face
     face_cascade.detectMultiScale (frame_gray, faces, 1.1, 2,
             CASCADE_SCALE_IMAGE, Size(30, 30));
+    
+    //checks for no faces
+    if (faces.size() == 0) {
+        imshow (window_name, frame);
+        return;
+    }
+
 
     // for each face
+    Rect biggest_face;
+    int size = 0;
     for (auto& face: faces) {
-        Point center (face.x + face.width / 2, face.y + face.height/3);
-        circle (frame, center, 10, Scalar (255, 0, 0), 4, 8, 0);
+        if (face.width > size) {
+            size = face.width;
+            biggest_face = face;
+        }
     }
+
+    Point center (biggest_face.x + biggest_face.width / 2, biggest_face.y
+            + biggest_face.height/3);
+    circle (frame, center, 10, Scalar (255, 0, 0), 4, 8, 0);
 
     // show
     imshow (window_name, frame);
