@@ -7,3 +7,6 @@
 `source bin/activate`
 
 `pip install -r requirements.txt`
+
+
+`export OpenCV_DIR=/usr/local/opt/opencv3/share/OpenCV`
