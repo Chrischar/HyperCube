@@ -21,17 +21,18 @@
       }
       #opengl {
         margin: 0px;
+          z-index: -1;
       }
     </style>
   </head>
   <body>
+    <div id="name">
+      <input id="n" type="text" placeholder="Screen name" autocomplete="off" /><button id="c">Set</button>
+    </div>
     <div id="opengl"></div>
-    <input id="n" type="text" placeholder="Screen name" autocomplete="off" /><button id="c">Connect</button>
     <div id="log"></div>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 		<script src="three.min.js"></script>
-		<script src="BokehShader2.js"></script>
-		<script src="CinematicCamera.js"></script>
 		<script src="hypercube"></script>
   </body>
 </html>

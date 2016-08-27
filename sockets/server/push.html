@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>HyperCube</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        #log {
+            overflow: hidden;
+            width: 600px;
+            height: 200px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        #log> p {
+            margin: 0px;
+            padding: 1px;
+            font-family: monospace;
+        }
+
+        #opengl {
+            margin: 0px;
+        }
+
+        #mousecatcher {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            background-color: rgba(0, 0, 0, 0.1);
+            z-index: -1;
+        }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+        function formatTimeOfDay(millisSinceEpoch) {
+            d = new Date(millisSinceEpoch);
+            return d.toLocaleString();
+        }
+
+
+        function log(msg) {
+            $('#log').prepend("<p>&lt;" + formatTimeOfDay($.now()) + "&gt;: " + msg + "</p>")
+        }
+
+        var socket = io();
+        log('socket created');
+
+
+        $(function() {
+            $('#p').click(function() {
+                globalstatus.camera.x = parseInt($('#x').val());
+                globalstatus.camera.y = parseInt($('#y').val());
+                globalstatus.camera.z = parseInt($('#z').val());
+                socket.emit('update', globalstatus);
+                return false;
+            });
+
+            socket.on('info', function(msg) {
+                log("server> " + msg)
+            });
+
+            socket.on('update', function(msg) {
+                log("update> " + msg);
+            });
+
+            $("body").mousemove(function(event) {
+                console.log("x");
+                $('#x').val((event.clientX - $(window).width() / 2) * 2);
+                $('#y').val((event.clientY - $(window).height() / 2) * 2);
+                //$('#x').val(0);
+                globalstatus.camera.x = parseInt($('#x').val());
+                globalstatus.camera.y = parseInt($('#y').val());
+                globalstatus.camera.z = parseInt($('#z').val());
+                socket.emit('update', globalstatus);
+            });
+        });
+
+        var globalstatus = {
+            "camera": {
+                "x": 0,
+                "y": -800,
+                "z": 500
+            },
+            "scene": "scene1"
+        }
+    </script>
+</head>
+
+<body>
+    <div id="mousecatcher"></div>
+    <input id="x" type="text" placeholder="x" autocomplete="off" />
+    <input id="y" type="text" placeholder="y" autocomplete="off" />
+    <input id="z" type="text" placeholder="z" autocomplete="off" />
+    <button id="p">Update</button>
+    <div id="log"></div>
+</body>
+
+</html>

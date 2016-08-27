@@ -1,5 +1,3 @@
-// http://stackoverflow.com/questions/6637574/how-to-format-now-with-jquery
-// http://stackoverflow.com/questions/14638018/current-time-formatting-with-javascript
 function formatTimeOfDay(millisSinceEpoch) {
     d = new Date(millisSinceEpoch);
     return d.toLocaleString();
@@ -13,12 +11,40 @@ function log(msg) {
 var socket = io();
 log('socket created');
 
+var globalstatus = {
+    "camera": {
+        "x": 0,
+        "y": -800,
+        "z": 0
+    },
+    "scene": "scene1"
+}
+
+
+var clientstatus = {
+    "screenppmm": {
+        "x": 4,
+        "y": 4
+    }, // screen pixels per cm, 1dpi ~ 0.03937008 p/mm
+    "screenlocation": {
+        "x": 0,
+        "y": -120,
+        "z": 120
+    }, // centre of screen location in mm
+    "screenlookingat": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }, // where the screen is facing
+    "rotation": 0 // how much it rotates around the
+        // (screenlookingat - screenlocation) vector, not yet implemented!
+}
+
 
 $(function() {
     $('#c').click(function() {
-        socket.emit('new screen', $('#n').val());
+        socket.emit('name', $('#n').val());
         log('registered as ' + $('#n').val());
-        $('#n').val('');
         return false;
     });
 
@@ -27,16 +53,28 @@ $(function() {
     });
 
     socket.on('update', function(msg) {
-      log("update>");
+        //log("update> " + msg);
+        console.log(msg);
 
-      mouseX = (msg.x - windowHalfX);
-      mouseY = (msg.y - windowHalfY);
+        globalstatus = msg;
+        updateCamera();
+    });
+
+    socket.on('client-update', function(msg) {
+        //log("client-update> " + msg);
+        console.log(msg);
+
+        clientstatus = msg;
+        updateCamera();
     });
 });
 
 
-function onDocumentMouseMove( event ) {
-  socket.emit('update', {"x" : event.clientX, "y" : event.clientY});
+function onDocumentMouseMove(event) {
+    socket.emit('update', {
+        "x": event.clientX,
+        "y": event.clientY
+    });
 }
 
 
@@ -49,18 +87,19 @@ function onDocumentMouseMove( event ) {
 
 var container;
 var camera, scene, renderer;
-var mesh, group1, group2, group3, light;
+var mesh, group1, light;
 var mouseX = 0,
     mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+
 init();
 animate();
 
 function init() {
     container = document.getElementById('opengl');
     camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.z = 1800;
+    camera.position.z = 800;
     scene = new THREE.Scene();
     light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 0, 1);
@@ -80,43 +119,23 @@ function init() {
     var shadowMaterial = new THREE.MeshBasicMaterial({
         map: shadowTexture
     });
-    var shadowGeo = new THREE.PlaneBufferGeometry(300, 300, 1, 1);
+    var shadowGeo = new THREE.PlaneBufferGeometry(100, 100, 1, 1);
     mesh = new THREE.Mesh(shadowGeo, shadowMaterial);
-    mesh.position.y = -250;
-    mesh.rotation.x = -Math.PI / 2;
-    scene.add(mesh);
-    mesh = new THREE.Mesh(shadowGeo, shadowMaterial);
-    mesh.position.y = -250;
-    mesh.position.x = -400;
-    mesh.rotation.x = -Math.PI / 2;
-    scene.add(mesh);
-    mesh = new THREE.Mesh(shadowGeo, shadowMaterial);
-    mesh.position.y = -250;
-    mesh.position.x = 400;
-    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.z = 0;
+    //mesh.rotation.x = -Math.PI / 2;
     scene.add(mesh);
     var faceIndices = ['a', 'b', 'c'];
-    var color, f, f2, f3, p, vertexIndex,
-        radius = 200,
-        geometry = new THREE.IcosahedronGeometry(radius, 1),
-        geometry2 = new THREE.IcosahedronGeometry(radius, 1),
-        geometry3 = new THREE.IcosahedronGeometry(radius, 1);
+    var color, f, p, vertexIndex,
+        radius = 50,
+        geometry = new THREE.IcosahedronGeometry(radius, 1);
     for (var i = 0; i < geometry.faces.length; i++) {
         f = geometry.faces[i];
-        f2 = geometry2.faces[i];
-        f3 = geometry3.faces[i];
         for (var j = 0; j < 3; j++) {
             vertexIndex = f[faceIndices[j]];
             p = geometry.vertices[vertexIndex];
             color = new THREE.Color(0xffffff);
             color.setHSL((p.y / radius + 1) / 2, 1.0, 0.5);
             f.vertexColors[j] = color;
-            color = new THREE.Color(0xffffff);
-            color.setHSL(0.0, (p.y / radius + 1) / 2, 0.5);
-            f2.vertexColors[j] = color;
-            color = new THREE.Color(0xffffff);
-            color.setHSL(0.125 * vertexIndex / geometry.vertices.length, 1.0, 0.5);
-            f3.vertexColors[j] = color;
         }
     }
     var materials = [
@@ -134,17 +153,9 @@ function init() {
         })
     ];
     group1 = THREE.SceneUtils.createMultiMaterialObject(geometry, materials);
-    group1.position.x = -400;
-    group1.rotation.x = -1.87;
+    group1.position.z = 120;
+    group1.rotation.x = 0;
     scene.add(group1);
-    group2 = THREE.SceneUtils.createMultiMaterialObject(geometry2, materials);
-    group2.position.x = 400;
-    group2.rotation.x = 0;
-    scene.add(group2);
-    group3 = THREE.SceneUtils.createMultiMaterialObject(geometry3, materials);
-    group3.position.x = 0;
-    group3.rotation.x = 0;
-    scene.add(group3);
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
@@ -152,8 +163,6 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
-    //
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -165,15 +174,74 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-//
 function animate() {
     requestAnimationFrame(animate);
     render();
 }
 
+function distance(x1, y1, z1, x2, y2, z2) {
+    return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
+}
+
+function distance2(obj1, obj2) {
+    return distance(obj1.x, obj1.y, obj1.z, obj2.x, obj2.y, obj2.z);
+}
+
+function updateCamera() {
+    // This computes a new frustum based on the settings
+    // It's a cheapo version, I don't really project onto the screen,
+    // but I rather fake the camera to be good enough
+
+    // Compute the size of the screen in mm
+    var actualWidth = window.innerWidth / clientstatus.screenppmm.x;
+    var actualHeight = window.innerHeight / clientstatus.screenppmm.y;
+
+    // Screen location
+    var screenLocation = new THREE.Vector3(clientstatus.screenlocation.x, clientstatus.screenlocation.y, clientstatus.screenlocation.z);
+
+    // Camera location
+    var cameraLocation = new THREE.Vector3(globalstatus.camera.x, globalstatus.camera.y, globalstatus.camera.z);
+
+    // Compute the axes of the screen as unit vectors
+    var screenForward = new THREE.Vector3(clientstatus.screenlookingat.x - clientstatus.screenlocation.x, clientstatus.screenlookingat.y - clientstatus.screenlocation.y, clientstatus.screenlookingat.z - clientstatus.screenlocation.z).normalize();
+    var screenRight = new THREE.Vector3();
+    screenRight.crossVectors(screenForward, new THREE.Vector3(0, 0, 1));
+    screenRight.applyAxisAngle(screenForward, Math.PI / 180 * clientstatus.rotation).normalize();
+    var screenUp = new THREE.Vector3();
+    screenUp.crossVectors(screenRight, screenForward).normalize();
+
+    // Now we compute the Field of View (T = top, L = left, etc.)
+    var screenL = screenLocation.clone().addScaledVector(screenRight, -actualWidth / 2);
+    var screenR = screenLocation.clone().addScaledVector(screenRight, +actualWidth / 2);
+    var screenT = screenLocation.clone().addScaledVector(screenUp, +actualHeight / 2);
+    var screenB = screenLocation.clone().addScaledVector(screenUp, -actualHeight / 2);
+    var cameraToL = screenL.clone().addScaledVector(cameraLocation, -1);
+    var cameraToR = screenR.clone().addScaledVector(cameraLocation, -1);
+    var cameraToT = screenT.clone().addScaledVector(cameraLocation, -1);
+    var cameraToB = screenB.clone().addScaledVector(cameraLocation, -1);
+    var fovHor = 180 / Math.PI * cameraToL.angleTo(cameraToR);
+    var fovVer = 180 / Math.PI * cameraToT.angleTo(cameraToB);
+
+    console.log(fovHor);
+    console.log(fovVer);
+
+    var fakeAspectRatio = fovHor / fovVer;
+
+    var lookingAt = screenLocation.clone().addScaledVector(cameraLocation, -1);
+    console.log(lookingAt);
+
+    // Set all the things
+    camera.fov = fovVer;
+    camera.aspect = fakeAspectRatio;
+    camera.position = screenLocation;
+    camera.up = screenUp;
+    camera.lookAt(lookingAt);
+    camera.updateProjectionMatrix();
+}
+
 function render() {
-    camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY - camera.position.y) * 0.05;
-    camera.lookAt(scene.position);
+    //camera.position.x += (mouseX - camera.position.x) * 0.05;
+    //camera.position.y += (-mouseY - camera.position.y) * 0.05;
+    //camera.lookAt(scene.position);
     renderer.render(scene, camera);
 }
