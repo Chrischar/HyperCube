@@ -27,6 +27,9 @@ int main (int argc, char **argv)
     if (!setup_capture(capture)) {
         return 1;
     }
+    
+    capture.set(CV_CAP_PROP_FRAME_WIDTH, 480);
+    capture.set(CV_CAP_PROP_FRAME_HEIGHT, 360);
 
     Mat frame;
     while (capture.read(frame)) {
@@ -80,7 +83,7 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
     
     //checks for no faces
     if (faces.size() == 0) {
-        imshow (window_name, frame);
+        imshow(window_name, frame);
         return;
     }
 
