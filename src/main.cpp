@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <thread>
+#include <chrono>
 
 #include "client.h"
 #include "camera.h"
@@ -46,19 +47,19 @@ void reshape (int w, int h)
    glMatrixMode (GL_MODELVIEW);
 }
 
-void idle() {
-  X += 0.05;
-  IN_OUT = std::sin(X);
-  UP_DOWN = std::sin(X);
-  LEFT_RIGHT = std::sin(X);
-  client->getCoordinates(LEFT_RIGHT, UP_DOWN, IN_OUT);
-  glutPostRedisplay();
+void update_coords() {
+  while (1) {
+    client->getCoordinates(LEFT_RIGHT, UP_DOWN, IN_OUT);
+      // std::cout << "X: " << LEFT_RIGHT << " Y: " << UP_DOWN << " Z: " << IN_OUT << std::endl; 
+    // std::this_thread::sleep_for (std::chrono::milliseconds(30));
+  }
 }
 
 void camera_init (void)
 {
   while (1) {
     camera->getCoordinates (client);
+    // std::this_thread::sleep_for (std::chrono::milliseconds(30));
   }
 }
 
@@ -70,13 +71,15 @@ int main(int argc, char** argv)
    glutInitWindowPosition (100, 100);
    glutCreateWindow (argv[0]);
    glutDisplayFunc(display); 
+   glutIdleFunc(glutPostRedisplay);
    glutReshapeFunc(reshape);
-   glutIdleFunc(idle);
    init();
 
    std::thread cam_thread (camera_init);
+   std::thread idle_thread (update_coords);
 
    glutMainLoop();
    cam_thread.join();
+   idle_thread.join(); 
    return 0;
 }
