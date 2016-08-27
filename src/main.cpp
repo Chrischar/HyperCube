@@ -13,6 +13,12 @@
 #include <GL/glut.h>
 #endif
 
+#include <cstdlib>
+
+using namespace std;
+
+int WINDOW_ID;
+
 GLfloat light_diffuse[] = {1.0, 0.0, 0.0, 1.0};  /* Red diffuse light. */
 GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};  /* Infinite light location. */
 GLfloat n[6][3] = {  /* Normals for the 6 faces of a cube. */
@@ -80,12 +86,24 @@ void init(void)
   glRotatef(-20, 0.0, 0.0, 1.0);
 }
 
+
+void keyboardHandler(unsigned char key, int x, int y) {
+
+    if (key == 'q') {
+      glutDestroyWindow(WINDOW_ID);
+      exit(0);
+    }
+
+    glutPostRedisplay();
+}
+
 int main(int argc, char **argv)
 {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutCreateWindow("red 3D lighted cube");
+  WINDOW_ID = glutCreateWindow("red 3D lighted cube");
   glutDisplayFunc(display);
+  glutKeyboardFunc(keyboardHandler);
   init();
   glutMainLoop();
   return 0;             /* ANSI C requires main to return int. */
