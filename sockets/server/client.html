@@ -1,38 +1,81 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
     <title>HyperCube</title>
+    <script>
+    function formatTimeOfDay(millisSinceEpoch) {
+        d = new Date(millisSinceEpoch);
+        return d.toLocaleString();
+    }
+
+
+    function log(msg) {
+        $('#log').prepend("<p>&lt;" + formatTimeOfDay($.now()) + "&gt;: " + msg + "</p>")
+    }
+    </script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://raw.githubusercontent.com/auduno/headtrackr/master/headtrackr.min.js"></script>
     <style>
-      #log {
-        overflow: hidden;
-        width: 600px;
-        height: 200px;
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.3);
-        padding: 10px;
-      }
-      #log > p {
-        margin: 0px;
-        padding: 1px;
-        font-family: monospace;
-      }
-      #opengl {
-        margin: 0px;
-          z-index: -1;
-      }
+        #log {
+            overflow: hidden;
+            width: 600px;
+            height: 200px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        #log> p {
+            margin: 0px;
+            padding: 1px;
+            font-family: monospace;
+        }
+
+        #opengl {
+            margin: 0px;
+            z-index: -1;
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <div id="name">
-      <input id="n" type="text" placeholder="Screen name" autocomplete="off" /><button id="c">Set</button>
+        <input id="n" type="text" placeholder="Screen name" autocomplete="off" />
+        <button id="c">Set</button>
     </div>
     <div id="opengl"></div>
     <div id="log"></div>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-		<script src="three.min.js"></script>
-		<script src="hypercube"></script>
-  </body>
+    <script src="three.min.js"></script>
+    <script src="hypercube"></script>
+    <canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas>
+    <video id="inputVideo" autoplay loop></video>
+    <script type="text/javascript">
+        var videoInput = document.getElementById('inputVideo');
+        var canvasInput = document.getElementById('inputCanvas');
+
+        var htracker = new headtrackr.Tracker();
+        htracker.init(videoInput, canvasInput);
+        htracker.start();
+
+  			var htracker = new headtrackr.Tracker({altVideo : {ogv : "./media/capture5.ogv", mp4 : "./media/capture5.mp4"}});
+  			htracker.init(videoInput, canvasInput);
+  			htracker.start();
+
+  			document.addEventListener('headtrackingEvent', function(event) {
+          var actualX = -10 * event.x;
+          var actualY = 10 * event.z;
+          var actualZ = 10 * event.y;
+          globalstatus.camera.x = actualX;
+          globalstatus.camera.y = actualY;
+          globalstatus.camera.z = actualZ;
+            log("x: " + actualX + ", y: " + actualY + ", z: " + actualZ);
+          socket.emit('update', globalstatus);
+  			}, false);
+    </script>
+</body>
+
 </html>

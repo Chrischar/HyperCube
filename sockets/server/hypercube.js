@@ -14,8 +14,8 @@ log('socket created');
 var globalstatus = {
     "camera": {
         "x": 0,
-        "y": -800,
-        "z": 0
+        "y": 0,
+        "z": 1000
     },
     "scene": "scene1"
 }
@@ -28,8 +28,8 @@ var clientstatus = {
     }, // screen pixels per cm, 1dpi ~ 0.03937008 p/mm
     "screenlocation": {
         "x": 0,
-        "y": -120,
-        "z": 120
+        "y": 1,
+        "z": 250
     }, // centre of screen location in mm
     "screenlookingat": {
         "x": 0,
@@ -54,7 +54,7 @@ $(function() {
 
     socket.on('update', function(msg) {
         //log("update> " + msg);
-        console.log(msg);
+        //console.log(msg);
 
         globalstatus = msg;
         updateCamera();
@@ -62,7 +62,7 @@ $(function() {
 
     socket.on('client-update', function(msg) {
         //log("client-update> " + msg);
-        console.log(msg);
+        //console.log(msg);
 
         clientstatus = msg;
         updateCamera();
@@ -98,7 +98,7 @@ animate();
 
 function init() {
     container = document.getElementById('opengl');
-    camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 10000);
+    camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.01, 1000000);
     camera.position.z = 800;
     scene = new THREE.Scene();
     light = new THREE.DirectionalLight(0xffffff);
@@ -153,9 +153,11 @@ function init() {
         })
     ];
     group1 = THREE.SceneUtils.createMultiMaterialObject(geometry, materials);
-    group1.position.z = 120;
+    group1.position.z = 50;
     group1.rotation.x = 0;
     scene.add(group1);
+    var grid = new THREE.GridHelper(250, 10);
+    scene.add(grid);
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
@@ -187,6 +189,12 @@ function distance2(obj1, obj2) {
     return distance(obj1.x, obj1.y, obj1.z, obj2.x, obj2.y, obj2.z);
 }
 
+function sgn(a) {
+    if (a > 0.0) return (1.0);
+    if (a < 0.0) return (-1.0);
+    return (0.0);
+}
+
 function updateCamera() {
     // This computes a new frustum based on the settings
     // It's a cheapo version, I don't really project onto the screen,
@@ -204,44 +212,115 @@ function updateCamera() {
 
     // Compute the axes of the screen as unit vectors
     var screenForward = new THREE.Vector3(clientstatus.screenlookingat.x - clientstatus.screenlocation.x, clientstatus.screenlookingat.y - clientstatus.screenlocation.y, clientstatus.screenlookingat.z - clientstatus.screenlocation.z).normalize();
-    var screenRight = new THREE.Vector3();
-    screenRight.crossVectors(screenForward, new THREE.Vector3(0, 0, 1));
-    screenRight.applyAxisAngle(screenForward, Math.PI / 180 * clientstatus.rotation).normalize();
-    var screenUp = new THREE.Vector3();
-    screenUp.crossVectors(screenRight, screenForward).normalize();
+    var screenRight = new THREE.Vector3().crossVectors(screenForward, new THREE.Vector3(0, 0, 1)).applyAxisAngle(screenForward, (Math.PI / 180) * clientstatus.rotation).normalize();
+    var screenUp = new THREE.Vector3().crossVectors(screenRight, screenForward).normalize();
 
     // Now we compute the Field of View (T = top, L = left, etc.)
     var screenL = screenLocation.clone().addScaledVector(screenRight, -actualWidth / 2);
     var screenR = screenLocation.clone().addScaledVector(screenRight, +actualWidth / 2);
     var screenT = screenLocation.clone().addScaledVector(screenUp, +actualHeight / 2);
     var screenB = screenLocation.clone().addScaledVector(screenUp, -actualHeight / 2);
+
     var cameraToL = screenL.clone().addScaledVector(cameraLocation, -1);
     var cameraToR = screenR.clone().addScaledVector(cameraLocation, -1);
     var cameraToT = screenT.clone().addScaledVector(cameraLocation, -1);
     var cameraToB = screenB.clone().addScaledVector(cameraLocation, -1);
-    var fovHor = 180 / Math.PI * cameraToL.angleTo(cameraToR);
-    var fovVer = 180 / Math.PI * cameraToT.angleTo(cameraToB);
 
-    console.log(fovHor);
-    console.log(fovVer);
+    var angleL = cameraLocation.angleTo(cameraToL);
+    var angleR = cameraLocation.angleTo(cameraToR);
+    var angleT = cameraLocation.angleTo(cameraToT);
+    var angleB = cameraLocation.angleTo(cameraToB);
 
-    var fakeAspectRatio = fovHor / fovVer;
+    var near = 1;
+    var far = 1000;
+    var L = near * Math.tan(angleL);
+    var R = near * Math.tan(angleR);
+    var T = near * Math.tan(angleT);
+    var B = near * Math.tan(angleB);
 
     var lookingAt = screenLocation.clone().addScaledVector(cameraLocation, -1);
-    console.log(lookingAt);
 
     // Set all the things
-    camera.fov = fovVer;
-    camera.aspect = fakeAspectRatio;
-    camera.position = screenLocation;
+    camera.position.copy(cameraLocation);
     camera.up = screenUp;
     camera.lookAt(lookingAt);
+
     camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+
+    // Matrix magic
+    // see: http://jsfiddle.net/slayvin/PT32b/
+    // see: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
+    frustumPlane = new THREE.Plane();
+    frustumPlane.setFromNormalAndCoplanarPoint(screenForward, screenLocation);
+    frustumPlane.applyMatrix4(camera.matrixWorldInverse);
+
+    frustumPlane = new THREE.Vector4(frustumPlane.normal.x, frustumPlane.normal.y, frustumPlane.normal.z, frustumPlane.constant);
+
+    var q = new THREE.Vector4();
+    var projectionMatrix = camera.projectionMatrix;
+
+    var q = new THREE.Vector4(sgn(frustumPlane.x), sgn(frustumPlane.y), 1, 1).applyMatrix4(new THREE.Matrix4().getInverse(projectionMatrix));
+
+    // Calculate the scaled plane vector
+    var c = new THREE.Vector4();
+    c = frustumPlane.multiplyScalar(2.0 / frustumPlane.dot(q));
+
+    // Replace the third row of the projection matrix
+    projectionMatrix.elements[2] = c.x - projectionMatrix.elements[3];
+    projectionMatrix.elements[6] = c.y - projectionMatrix.elements[7];
+    projectionMatrix.elements[10] = c.z - projectionMatrix.elements[11];
+    projectionMatrix.elements[14] = c.w - projectionMatrix.elements[15];
+    /*
+
+    // Matrix magic
+    // see: http://jsfiddle.net/slayvin/PT32b/
+    // see: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
+    frustumPlane = new THREE.Plane();
+    frustumPlane.setFromNormalAndCoplanarPoint(screenForward, screenLocation);
+    frustumPlane.applyMatrix4(camera.matrixWorldInverse);
+
+    frustumPlane = new THREE.Vector4(frustumPlane.normal.x, frustumPlane.normal.y, frustumPlane.normal.z, frustumPlane.constant);
+
+    var q = new THREE.Vector4();
+    var projectionMatrix = camera.projectionMatrix;
+
+    q.x = (sgn(frustumPlane.x) + projectionMatrix.elements[8]) / projectionMatrix.elements[0];
+    q.y = (sgn(frustumPlane.y) + projectionMatrix.elements[9]) / projectionMatrix.elements[5];
+    q.z = -1.0;
+    q.w = (1.0 + projectionMatrix.elements[10]) / camera.projectionMatrix.elements[14];
+
+    // Calculate the scaled plane vector
+    var c = new THREE.Vector4();
+    c = frustumPlane.multiplyScalar(2.0 / frustumPlane.dot(q));
+
+    // Replace the third row of the projection matrix
+    projectionMatrix.elements[2] = c.x;
+    projectionMatrix.elements[6] = c.y;
+    projectionMatrix.elements[10] = c.z + 1.0;
+    projectionMatrix.elements[14] = c.w;*/
+
+
+    //
+    // void CalculateObliqueMatrixOrtho( ref Matrix4x4 projection, Vector4 clipPlane )
+    // {
+    //     Vector4 q = projection.inverse * new Vector4(
+    //         sgn(clipPlane.x),
+    //         sgn(clipPlane.y),
+    //         1.0f,
+    //         1.0f
+    //     );
+    //     Vector4 c = clipPlane * (2.0F / (Vector4.Dot (clipPlane, q)));
+    //     // third row = clip plane - fourth row
+    //     projection[2] = c.x - projection[3];
+    //     projection[6] = c.y - projection[7];
+    //     projection[10] = c.z - projection[11];
+    //     projection[14] = c.w - projection[15];
+    // }
 }
 
 function render() {
-    //camera.position.x += (mouseX - camera.position.x) * 0.05;
-    //camera.position.y += (-mouseY - camera.position.y) * 0.05;
-    //camera.lookAt(scene.position);
+    updateCamera();
     renderer.render(scene, camera);
 }
