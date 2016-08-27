@@ -12,7 +12,6 @@ static int setup_capture(VideoCapture& capture);
 static void detectFrame(Mat frame, CascadeClassifier& face_cascade);
 
 String face_cascade_file    = "resources/haarcascade_frontalface_alt.xml";
-String window_name          = "Debug";
 
 int setup(int argc, char **argv)
 {
@@ -83,7 +82,6 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
     
     //checks for no faces
     if (faces.size() == 0) {
-        imshow(window_name, frame);
         return;
     }
 
@@ -98,10 +96,7 @@ static void detectFrame(Mat frame, CascadeClassifier& face_cascade)
         }
     }
 
-    Point center(biggest_face.x + biggest_face.width / 2, biggest_face.y
-            + biggest_face.height/3);
-    circle(frame, center, 10, Scalar(255, 0, 0), 4, 8, 0);
+    setCoordinates(biggest_face.x + biggest_face.width / 2, biggest_face.y +
+            biggest_face.height/3, biggest_face.width, biggest_face.height);
 
-    // show
-    imshow(window_name, frame);
 }
