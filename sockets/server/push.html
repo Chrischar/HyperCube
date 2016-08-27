@@ -38,6 +38,17 @@
             background-color: rgba(0, 0, 0, 0.1);
             z-index: -1;
         }
+        #draw-out {
+          position: relative;
+          height: 200px;
+        }
+        #draw-out>div {
+          position: absolute;
+          background-color: rgba(0, 0, 255, 0.3);
+        }
+        .axis {
+          background-color: rgba(0, 0, 0, 0.3) !important;
+        }
     </style>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
@@ -80,7 +91,25 @@
                 globalstatus.camera.x = parseInt($('#x').val());
                 globalstatus.camera.y = parseInt($('#y').val());
                 globalstatus.camera.z = parseInt($('#z').val());
-                socket.emit('update', globalstatus);
+                //socket.emit('update', globalstatus);
+            });
+
+            var vx = 500;
+            var vy = 250;
+
+            $('#d').click(function() {
+              socket.emit('get-layout', '');
+              $('#draw-out').empty();
+              $('#draw-out').append('<div class="axis" style="left: ' + vx + 'px; top: ' + 0 + 'px; width: 1px; height: 200%"></div>');
+              $('#draw-out').append('<div class="axis" style="left: ' + 0 + 'px; top: ' + vy + 'px; width: 200%; height: 1px"></div>');
+            });
+
+            socket.on('send-layout', function(msg) {
+              x = vx + msg.screenlocation.l.x/3;
+              y = vy - msg.screenlocation.t.y/3;
+              width = msg.screenlocation.r.x/3 - msg.screenlocation.l.x/3;
+              height = msg.screenlocation.t.y/3 - msg.screenlocation.b.y/3;
+              $('#draw-out').append('<div style="left: ' + x + 'px; top: ' + y + 'px; width: ' + width + 'px; height: ' + height + 'px"></div>');
             });
         });
 
@@ -101,6 +130,12 @@
     <input id="y" type="text" placeholder="y" autocomplete="off" />
     <input id="z" type="text" placeholder="z" autocomplete="off" />
     <button id="p">Update</button>
+    <div id="draw">
+      <button id="d">Draw layout</button>
+      <div id="draw-out">
+
+      </div>
+    </div>
     <div id="log"></div>
 </body>
 

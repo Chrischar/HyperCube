@@ -11,12 +11,12 @@ var clientInfo = {
         }, // screen pixels per cm, 1dpi ~ 0.03937008 p/mm
         "screenlocation": {
             "x": 0,
-            "y": 60,
+            "y": 100,
             "z": 1000
         }, // centre of screen location in mm
         "screenlookingat": {
             "x": 0,
-            "y": 60,
+            "y": 100,
             "z": 0
         }, // where the screen is facing
         "rotation": 0 // how much it rotates around the
@@ -113,6 +113,14 @@ io.on('connection', function(socket) {
     socket.on('update', function(msg) {
         console.log('update: ' + msg);
         io.emit('update', msg);
+    });
+    socket.on('get-layout', function(msg) {
+        console.log('get-layout: ' + msg);
+        io.emit('get-layout', msg);
+    });
+    socket.on('send-layout', function(msg) {
+        console.log('send-layout: ' + msg);
+        io.emit('send-layout', msg);
     });
 });
 

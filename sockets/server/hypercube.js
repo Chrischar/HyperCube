@@ -40,6 +40,38 @@ var clientstatus = {
         // (screenlookingat - screenlocation) vector, not yet implemented!
 }
 
+        var layoutdata = {
+            "screenpixels": {
+                "width": 0,
+                "height": 0
+            },
+            "screenactual": {
+                "width": 0,
+                "height": 0
+            },
+            "screenlocation": {
+                "l": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "r": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "b": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "t": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        }
 
 $(function() {
     $('#c').click(function() {
@@ -58,6 +90,12 @@ $(function() {
 
         globalstatus = msg;
         updateCamera();
+    });
+
+    socket.on('get-layout', function(msg) {
+        log('get-layout');
+        updateCamera();
+        socket.emit('send-layout', layoutdata);
     });
 
     socket.on('client-update', function(msg) {
@@ -98,7 +136,7 @@ animate();
 
 function init() {
     container = document.getElementById('opengl');
-    camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.01, 1000000);
+    camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.01, 1000000);
     camera.position.z = 800;
     scene = new THREE.Scene();
     light = new THREE.DirectionalLight(0xffffff);
@@ -227,11 +265,6 @@ function updateCamera() {
     var screenT = screenLocation.clone().addScaledVector(screenUp, +actualHeight / 2);
     var screenB = screenLocation.clone().addScaledVector(screenUp, -actualHeight / 2);
 
-        console.log(screenL);
-            console.log(screenR);
-                console.log(screenT);
-                    console.log(screenB);
-
     var cameraToL = screenL.clone().addScaledVector(cameraLocation, -1);
     var cameraToR = screenR.clone().addScaledVector(cameraLocation, -1);
     var cameraToT = screenT.clone().addScaledVector(cameraLocation, -1);
@@ -256,6 +289,7 @@ function updateCamera() {
     camera.up = screenUp;
     camera.lookAt(lookingAt);
     camera.fov = angleT + angleB;
+    camera.near = lookingAt.length();
 
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
@@ -284,6 +318,40 @@ function updateCamera() {
     projectionMatrix.elements[6] = c.y - projectionMatrix.elements[7];
     projectionMatrix.elements[10] = c.z - projectionMatrix.elements[11];
     projectionMatrix.elements[14] = c.w - projectionMatrix.elements[15];
+
+
+    layoutdata = {
+        "screenpixels": {
+            "width": window.innerWidth,
+            "height": window.innerHeight
+        },
+        "screenactual": {
+            "width": actualWidth,
+            "height": actualHeight
+        },
+        "screenlocation": {
+            "l": {
+                "x": screenL.x,
+                "y": screenL.y,
+                "z": screenL.z
+            },
+            "r": {
+                "x": screenR.x,
+                "y": screenR.y,
+                "z": screenR.z
+            },
+            "b": {
+                "x": screenB.x,
+                "y": screenB.y,
+                "z": screenB.z
+            },
+            "t": {
+                "x": screenT.x,
+                "y": screenT.y,
+                "z": screenT.z
+            }
+        }
+    }
 }
 
 function render() {
