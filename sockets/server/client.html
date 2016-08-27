@@ -66,13 +66,13 @@
   			htracker.start();
 
   			document.addEventListener('headtrackingEvent', function(event) {
-          var actualX = -10 * event.x;
-          var actualY = 10 * event.z;
-          var actualZ = 10 * event.y;
+          var actualX = 10 * event.x;
+          var actualY = 10 * event.y;
+          var actualZ = 10 * event.z + clientstatus.screenlocation.z;
           globalstatus.camera.x = actualX;
           globalstatus.camera.y = actualY;
           globalstatus.camera.z = actualZ;
-            log("x: " + actualX + ", y: " + actualY + ", z: " + actualZ);
+          log("x: " + actualX + ", y: " + actualY + ", z: " + actualZ);
           socket.emit('update', globalstatus);
   			}, false);
     </script>

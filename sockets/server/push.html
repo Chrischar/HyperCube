@@ -74,8 +74,8 @@
 
             $("body").mousemove(function(event) {
                 console.log("x");
-                $('#x').val((event.clientX - $(window).width() / 2) * 2);
-                $('#y').val((event.clientY - $(window).height() / 2) * 2);
+                $('#x').val((event.clientX - $(window).width() / 2) * 3);
+                $('#z').val((event.clientY - $(window).height() / 2) * 3 + 1000);
                 //$('#x').val(0);
                 globalstatus.camera.x = parseInt($('#x').val());
                 globalstatus.camera.y = parseInt($('#y').val());

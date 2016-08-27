@@ -121,7 +121,7 @@ function init() {
     });
     var shadowGeo = new THREE.PlaneBufferGeometry(100, 100, 1, 1);
     mesh = new THREE.Mesh(shadowGeo, shadowMaterial);
-    mesh.position.z = 0;
+    mesh.position.y = -50;
     //mesh.rotation.x = -Math.PI / 2;
     scene.add(mesh);
     var faceIndices = ['a', 'b', 'c'];
@@ -153,11 +153,17 @@ function init() {
         })
     ];
     group1 = THREE.SceneUtils.createMultiMaterialObject(geometry, materials);
-    group1.position.z = 50;
+    group1.position.y = 50;
     group1.rotation.x = 0;
     scene.add(group1);
-    var grid = new THREE.GridHelper(250, 10);
-    scene.add(grid);
+    var grid1 = new THREE.GridHelper(250, 10);
+    scene.add(grid1);
+    var grid2 = new THREE.GridHelper(250, 10);
+    grid1.position.z = -100;
+    grid1.rotation.x = 0;
+    scene.add(grid2);
+    var grid3 = new THREE.GridHelper(250, 10);
+    scene.add(grid3);
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
@@ -212,7 +218,7 @@ function updateCamera() {
 
     // Compute the axes of the screen as unit vectors
     var screenForward = new THREE.Vector3(clientstatus.screenlookingat.x - clientstatus.screenlocation.x, clientstatus.screenlookingat.y - clientstatus.screenlocation.y, clientstatus.screenlookingat.z - clientstatus.screenlocation.z).normalize();
-    var screenRight = new THREE.Vector3().crossVectors(screenForward, new THREE.Vector3(0, 0, 1)).applyAxisAngle(screenForward, (Math.PI / 180) * clientstatus.rotation).normalize();
+    var screenRight = new THREE.Vector3().crossVectors(screenForward, new THREE.Vector3(0, 1, 0)).applyAxisAngle(screenForward, (Math.PI / 180) * clientstatus.rotation).normalize();
     var screenUp = new THREE.Vector3().crossVectors(screenRight, screenForward).normalize();
 
     // Now we compute the Field of View (T = top, L = left, etc.)
@@ -220,6 +226,11 @@ function updateCamera() {
     var screenR = screenLocation.clone().addScaledVector(screenRight, +actualWidth / 2);
     var screenT = screenLocation.clone().addScaledVector(screenUp, +actualHeight / 2);
     var screenB = screenLocation.clone().addScaledVector(screenUp, -actualHeight / 2);
+
+        console.log(screenL);
+            console.log(screenR);
+                console.log(screenT);
+                    console.log(screenB);
 
     var cameraToL = screenL.clone().addScaledVector(cameraLocation, -1);
     var cameraToR = screenR.clone().addScaledVector(cameraLocation, -1);
@@ -244,6 +255,7 @@ function updateCamera() {
     camera.position.copy(cameraLocation);
     camera.up = screenUp;
     camera.lookAt(lookingAt);
+    camera.fov = angleT + angleB;
 
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
@@ -272,52 +284,6 @@ function updateCamera() {
     projectionMatrix.elements[6] = c.y - projectionMatrix.elements[7];
     projectionMatrix.elements[10] = c.z - projectionMatrix.elements[11];
     projectionMatrix.elements[14] = c.w - projectionMatrix.elements[15];
-    /*
-
-    // Matrix magic
-    // see: http://jsfiddle.net/slayvin/PT32b/
-    // see: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
-    frustumPlane = new THREE.Plane();
-    frustumPlane.setFromNormalAndCoplanarPoint(screenForward, screenLocation);
-    frustumPlane.applyMatrix4(camera.matrixWorldInverse);
-
-    frustumPlane = new THREE.Vector4(frustumPlane.normal.x, frustumPlane.normal.y, frustumPlane.normal.z, frustumPlane.constant);
-
-    var q = new THREE.Vector4();
-    var projectionMatrix = camera.projectionMatrix;
-
-    q.x = (sgn(frustumPlane.x) + projectionMatrix.elements[8]) / projectionMatrix.elements[0];
-    q.y = (sgn(frustumPlane.y) + projectionMatrix.elements[9]) / projectionMatrix.elements[5];
-    q.z = -1.0;
-    q.w = (1.0 + projectionMatrix.elements[10]) / camera.projectionMatrix.elements[14];
-
-    // Calculate the scaled plane vector
-    var c = new THREE.Vector4();
-    c = frustumPlane.multiplyScalar(2.0 / frustumPlane.dot(q));
-
-    // Replace the third row of the projection matrix
-    projectionMatrix.elements[2] = c.x;
-    projectionMatrix.elements[6] = c.y;
-    projectionMatrix.elements[10] = c.z + 1.0;
-    projectionMatrix.elements[14] = c.w;*/
-
-
-    //
-    // void CalculateObliqueMatrixOrtho( ref Matrix4x4 projection, Vector4 clipPlane )
-    // {
-    //     Vector4 q = projection.inverse * new Vector4(
-    //         sgn(clipPlane.x),
-    //         sgn(clipPlane.y),
-    //         1.0f,
-    //         1.0f
-    //     );
-    //     Vector4 c = clipPlane * (2.0F / (Vector4.Dot (clipPlane, q)));
-    //     // third row = clip plane - fourth row
-    //     projection[2] = c.x - projection[3];
-    //     projection[6] = c.y - projection[7];
-    //     projection[10] = c.z - projection[11];
-    //     projection[14] = c.w - projection[15];
-    // }
 }
 
 function render() {
