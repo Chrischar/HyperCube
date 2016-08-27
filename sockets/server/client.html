@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HyperCube</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+      #log {
+        overflow: hidden;
+        width: 600px;
+        height: 200px;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+      }
+      #log > p {
+        margin: 0px;
+        padding: 1px;
+        font-family: monospace;
+      }
+      #opengl {
+        margin: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="opengl"></div>
+    <input id="n" type="text" placeholder="Screen name" autocomplete="off" /><button id="c">Connect</button>
+    <div id="log"></div>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script src="three.min.js"></script>
+		<script src="BokehShader2.js"></script>
+		<script src="CinematicCamera.js"></script>
+		<script src="hypercube"></script>
+  </body>
+</html>
