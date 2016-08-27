@@ -6,15 +6,23 @@
 #include <stdlib.h>
 #include <cmath>
 
+#include "client.h"
+#include "camera.h"
+
 double X = 0;
 double IN_OUT = 0;
 double LEFT_RIGHT = 0;
 double UP_DOWN = 0;
 
+Client* client;
+Camera* camera;
+
 void init(void) 
 {
    glClearColor(0.0, 0.0, 0.0, 0.0);
    glShadeModel(GL_FLAT);
+   client = new Client();
+   // camera = new Camera();
 }
 
 void display(void)
@@ -42,6 +50,8 @@ void idle() {
   IN_OUT = std::sin(X);
   UP_DOWN = std::sin(X);
   LEFT_RIGHT = std::sin(X);
+  // camera->getCoordinates(*client);
+  // client->getCoordinates(LEFT_RIGHT, UP_DOWN, IN_OUT);
   glutPostRedisplay();
 }
 
