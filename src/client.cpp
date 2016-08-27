@@ -2,6 +2,7 @@
 #include "camera.h"
 #include <cmath>
 #include <mutex>
+#include <iostream>
 
 Client::Client(void)
 {
@@ -16,6 +17,8 @@ Client::~Client(void)
 
 void Client::setCoordinates(int x, int y, int width, int height)
 {
+    std::cout << "X: " << x << " Y: " << y << " Width: " << width << 
+        " Height: " << height << std::endl;
     my_lock.lock ();
     double r = 1 / width;
     x = (SCREEN_WIDTH / 2) - x;
