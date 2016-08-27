@@ -4,8 +4,8 @@ include_directories(
 )
 
 add_executable(HyperCube
-    camera.cpp
-    client.cpp
+    # camera.cpp
+    # client.cpp
     main.cpp
 )
 
