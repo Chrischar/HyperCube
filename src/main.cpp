@@ -4,89 +4,69 @@
   #include <GL/glut.h>
 #endif
 #include <stdlib.h>
+#include <cmath>
 
-static GLfloat spin = 0.0;
+#include "client.h"
+#include "camera.h"
 
-int WINDOW_ID;
+double X = 0;
+double IN_OUT = 0;
+double LEFT_RIGHT = 0;
+double UP_DOWN = 0;
+
+Client* client;
+Camera* camera;
 
 void init(void) 
 {
-   glClearColor (0.0, 0.0, 0.0, 0.0);
-   glShadeModel (GL_FLAT);
+   glClearColor(0.0, 0.0, 0.0, 0.0);
+   glShadeModel(GL_FLAT);
+   client = new Client();
+   // camera = new Camera();
 }
 
 void display(void)
 {
-   glClear(GL_COLOR_BUFFER_BIT);
-   glPushMatrix();
-   glRotatef(spin, 0.0, 0.0, 1.0);
-   glColor3f(1.0, 1.0, 1.0);
-   glRectf(-25.0, -25.0, 25.0, 25.0);
-   glPopMatrix();
+   glClear (GL_COLOR_BUFFER_BIT);
+   glColor3f (1.0, 1.0, 1.0);
+   glLoadIdentity();
+   gluLookAt(0.0 + LEFT_RIGHT, 0.0 + UP_DOWN, 5.0 + IN_OUT, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+   glutWireCube (1.0);
    glutSwapBuffers();
+
 }
 
-void spinDisplay(void)
+void reshape (int w, int h)
 {
-   spin = spin + 2.0;
-   if (spin > 360.0)
-      spin = spin - 360.0;
-   glutPostRedisplay();
+   glViewport (0, 0, (GLsizei) w, (GLsizei) h); 
+   glMatrixMode (GL_PROJECTION);
+   glLoadIdentity ();
+   glFrustum (-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
+   glMatrixMode (GL_MODELVIEW);
 }
 
-void reshape(int w, int h)
-{
-   glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-}
-
-void mouse(int button, int state, int x, int y) 
-{
-   switch (button) {
-      case GLUT_LEFT_BUTTON:
-         if (state == GLUT_DOWN)
-            glutIdleFunc(spinDisplay);
-         break;
-      case GLUT_MIDDLE_BUTTON:
-         if (state == GLUT_DOWN)
-            glutIdleFunc(NULL);
-         break;
-      default:
-         break;
-   }
-}
-
-void keyboard(unsigned char key, int x, int y) {
-  if (key == 'q') {
-    glutDestroyWindow(WINDOW_ID);
-    exit(0);
-  }
-
+void idle() {
+  X += 0.05;
+  IN_OUT = std::sin(X);
+  UP_DOWN = std::sin(X);
+  LEFT_RIGHT = std::sin(X);
+  // camera->getCoordinates(*client);
+  // client->getCoordinates(LEFT_RIGHT, UP_DOWN, IN_OUT);
   glutPostRedisplay();
 }
 
-
-/* 
- *  Request double buffer display mode.
- *  Register mouse input callback functions
- */
 int main(int argc, char** argv)
 {
    glutInit(&argc, argv);
-   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
-   glutInitWindowSize(250, 250); 
-   glutInitWindowPosition(100, 100);
-   WINDOW_ID = glutCreateWindow(argv[0]);
-   init ();
+   glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+   glutInitWindowSize (500, 500); 
+   glutInitWindowPosition (100, 100);
+   glutCreateWindow (argv[0]);
+   init();
    glutDisplayFunc(display); 
-   glutReshapeFunc(reshape); 
-   glutMouseFunc(mouse);
-   glutKeyboardFunc(keyboard);
+   glutReshapeFunc(reshape);
+   glutIdleFunc(idle);
+
    glutMainLoop();
    return 0;
 }
-
