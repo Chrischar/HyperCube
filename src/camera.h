@@ -23,9 +23,9 @@ class Camera {
     int setup_cascade(void);
     int setup_capture(void);
 public:
-    Camera (void);
+    Camera (Client* client);
     ~Camera (void);
-    void getCoordinates(Client& client);
+    void getCoordinates(Client* client);
 };
 
 #endif

@@ -4,8 +4,7 @@
 
 using namespace std;
 
-
-Camera::Camera(void)
+Camera::Camera(Client* client)
 {
     face_cascade_file = "resources/haarcascade_frontalface_alt.xml";
     CascadeClassifier face_cascade;
@@ -22,6 +21,7 @@ Camera::Camera(void)
 
     capture.set(CV_CAP_PROP_FRAME_WIDTH, SCREEN_WIDTH);
     capture.set(CV_CAP_PROP_FRAME_HEIGHT, SCREEN_DEPTH);
+
 }
 
 int Camera::setup_cascade(void)
@@ -45,7 +45,7 @@ int Camera::setup_capture()
     return 1;
 }
 
-void Camera::getCoordinates(Client& client)
+void Camera::getCoordinates(Client* client)
 {
     capture.read(frame);
     vector<Rect> faces;
@@ -74,7 +74,7 @@ void Camera::getCoordinates(Client& client)
         }
     }
 
-    client.setCoordinates(biggest_face.x + biggest_face.width / 2,
+    client->setCoordinates(biggest_face.x + biggest_face.width / 2,
         biggest_face.y + biggest_face.height/3, biggest_face.width,
         biggest_face.height);
 
