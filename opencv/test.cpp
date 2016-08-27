@@ -7,21 +7,18 @@
 using namespace std;
 using namespace cv;
 
-static int setup_cascade (CascadeClassifier& face_cascade,
-        CascadeClassifier& eyes_cascade);
+static int setup_cascade (CascadeClassifier& face_cascad);
 static int setup_capture (VideoCapture& capture);
 static void detectFrame (Mat frame, CascadeClassifier& face_cascade);
 
 String face_cascade_file    = "haarcascade_frontalface_alt.xml";
-String eyes_cascade_file    = "haarcascade_eye_tree_eyeglasses.xml";
 String window_name          = "Face Detection!";
 
 int main (int argc, char** argv)
 {
     CascadeClassifier face_cascade;
-    CascadeClassifier eyes_cascade;
 
-    if (!setup_cascade (face_cascade, eyes_cascade)) {
+    if (!setup_cascade (face_cascade)) {
         return 1;
     }
 
@@ -47,15 +44,10 @@ int main (int argc, char** argv)
     return 0;
 }
 
-static int setup_cascade (CascadeClassifier& face_cascade,
-        CascadeClassifier& eyes_cascade)
+static int setup_cascade (CascadeClassifier& face_cascade)
 {
     if (!face_cascade.load (face_cascade_file)) {
         cout << "Could not load face cascade." << endl;
-        return 0;
-    }
-    if (!eyes_cascade.load (eyes_cascade_file)) {
-        cout << "Could not load eyes cascade." << endl;
         return 0;
     }
 
@@ -87,8 +79,8 @@ static void detectFrame (Mat frame, CascadeClassifier& face_cascade)
 
     // for each face
     for (auto& face: faces) {
-        Point center (face.x + face.width / 2, face.y + face.height / 2);
-        circle (frame, center, 50, Scalar (255, 0, 0), 4, 8, 0);
+        Point center (face.x + face.width / 2, face.y + face.height/3);
+        circle (frame, center, 10, Scalar (255, 0, 0), 4, 8, 0);
     }
 
     // show
