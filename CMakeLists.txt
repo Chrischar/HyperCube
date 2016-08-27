@@ -6,20 +6,6 @@ find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-include_directories(
-    ${GLUT_INCLUDE_DIRS}
-    ${OpenGL_INCLUDE_DIRS}
-)
-
-add_executable(HyperCube
-    camera.cpp
-    server.cpp
-    main.cpp
-)
-
-target_link_libraries(HyperCube
-    ${OpenCV_LIBS}
-    ${GLUT_LIBRARY}
-    ${OPENGL_LIBRARIES}
-)
+add_subdirectory(src)
