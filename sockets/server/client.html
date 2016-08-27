@@ -61,10 +61,6 @@
         htracker.init(videoInput, canvasInput);
         htracker.start();
 
-  			var htracker = new headtrackr.Tracker({altVideo : {ogv : "./media/capture5.ogv", mp4 : "./media/capture5.mp4"}});
-  			htracker.init(videoInput, canvasInput);
-  			htracker.start();
-
   			document.addEventListener('headtrackingEvent', function(event) {
           var actualX = 10 * event.x;
           var actualY = 10 * event.y;
