@@ -4,6 +4,8 @@
 #include <iostream>
 using namespace std;
 
+#define INSTABILITY_CONSTANT 0.8
+
 Client::Client(void)
 {
     x = 0.0;
@@ -13,9 +15,10 @@ Client::Client(void)
 
 void Client::setCoordinates(double x, double y, int width)
 {
-    this->x = x / SCREEN_WIDTH;
-    this->y = y / SCREEN_HEIGHT;
-    this->z = 360 / 3.14 * asin (width * sqrt(x*x + y*y) / 50);
+    this->x = INSTABILITY_CONSTANT * x + (1 - INSTABILITY_CONSTANT) * this->x;
+    this->y = INSTABILITY_CONSTANT * y + (1 - INSTABILITY_CONSTANT) * this->y;
+    this->z = INSTABILITY_CONSTANT * sqrt(x*x + y*y) * width +
+        (1 - INSTABILITY_CONSTANT) * this->z;
 }
 
 void Client::getCoordinates(double* x, double* y, double* z)

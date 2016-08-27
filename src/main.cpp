@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     thread control_thread(control_loop);
 
     screen_loop();
-    
+
     control_thread.join();
     return 0;
 }
