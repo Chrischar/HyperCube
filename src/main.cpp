@@ -7,13 +7,14 @@
 #include <cmath>
 
 double X = 0;
-int IN_OUT = 0;
-int LEFT_RIGHT = 0;
+double IN_OUT = 0;
+double LEFT_RIGHT = 0;
+double UP_DOWN = 0;
 
 void init(void) 
 {
-   glClearColor (0.0, 0.0, 0.0, 0.0);
-   glShadeModel (GL_FLAT);
+   glClearColor(0.0, 0.0, 0.0, 0.0);
+   glShadeModel(GL_FLAT);
 }
 
 void display(void)
@@ -21,7 +22,7 @@ void display(void)
    glClear (GL_COLOR_BUFFER_BIT);
    glColor3f (1.0, 1.0, 1.0);
    glLoadIdentity();
-   gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+   gluLookAt(0.0 + LEFT_RIGHT, 0.0 + UP_DOWN, 5.0 + IN_OUT, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
    glutWireCube (1.0);
    glutSwapBuffers();
 
@@ -37,11 +38,10 @@ void reshape (int w, int h)
 }
 
 void idle() {
-  // X += 0.05;
-  // // IN_OUT = std::sin(X);
-  // IN_OUT = X;
-  // LEFT_RIGHT = X;
-  // // LEFT_RIGHT = std::sin(X);
+  X += 0.05;
+  IN_OUT = std::sin(X);
+  UP_DOWN = std::sin(X);
+  LEFT_RIGHT = std::sin(X);
   glutPostRedisplay();
 }
 
