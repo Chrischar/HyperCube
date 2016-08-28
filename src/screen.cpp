@@ -76,7 +76,7 @@ bool Screen::loop(double x, double y, double z, double angle)
 
     x *= -4;
     y *= -4;
-    y += 1.0;
+    y += 1.2;
     // z *= 3;
     gluLookAt(x
             , y
@@ -107,7 +107,7 @@ void Screen::draw(void)
 
     glPushMatrix();
     glRotatef(90, 0, 0, 1);
-    glTranslatef(0, 0, -3.0);
+    glTranslatef(0, 0, -5.0);
     glutSolidTeapot(0.7);
     glPopMatrix();
 
@@ -123,12 +123,12 @@ void Screen::draw(void)
 
     glPushMatrix();
     glTranslatef(-0.6, 0.6, -2.0);
-    glutSolidSphere(0.2, 16, 16);
+    glutSolidCube(0.2);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(-0.6,-0.6, -2.0);
-    glutSolidCube(0.2);
+    glutSolidSphere(0.2, 16, 16);
     glPopMatrix();
 
     glPushMatrix();

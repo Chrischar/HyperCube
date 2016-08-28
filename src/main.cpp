@@ -38,7 +38,10 @@ int main(int argc, char** argv)
 static void control_loop(void)
 {
     while (running) {
-        camera->detect_frame(*client);
+        try {
+            camera->detect_frame(*client);
+        } catch(int e) {
+        }
     }
 }
 
