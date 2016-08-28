@@ -38,35 +38,39 @@ bool Camera::setup_capture(void)
 
 void Camera::detect_frame(Client& client)
 {
-    capture.read(frame);
-    vector<Rect> faces;
-    Mat frame_gray;
+    try {
+        capture.read(frame);
+        vector<Rect> faces;
+        Mat frame_gray;
 
-    cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
-    equalizeHist(frame_gray, frame_gray);
+            cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+        equalizeHist(frame_gray, frame_gray);
 
-    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
-            CASCADE_SCALE_IMAGE, Size(30, 30));
+        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
+                CASCADE_SCALE_IMAGE, Size(30, 30));
 
-    if (faces.size() == 0) {
+        if (faces.size() == 0) {
+            return;
+        }
+
+        Rect biggest_face;
+        int size = 0;
+        for (auto& face: faces) {
+            if (face.width > size) {
+                size            = face.width;
+                biggest_face    = face;
+            }
+        }
+
+        double x = biggest_face.x + 0.5 * biggest_face.width;
+        double y = biggest_face.y + 0.5 * biggest_face.height;
+
+        x -= SCREEN_WIDTH / 2;
+        y -= SCREEN_HEIGHT / 2;
+
+        client.setCoordinates(x / SCREEN_WIDTH, --y / SCREEN_HEIGHT,
+                biggest_face.width);
+    } catch(int e) {
         return;
     }
-
-    Rect biggest_face;
-    int size = 0;
-    for (auto& face: faces) {
-        if (face.width > size) {
-            size            = face.width;
-            biggest_face    = face;
-        }
-    }
-
-    double x = biggest_face.x + 0.5 * biggest_face.width;
-    double y = biggest_face.y + 0.5 * biggest_face.height;
-
-    x -= SCREEN_WIDTH / 2;
-    y -= SCREEN_HEIGHT / 2;
-
-    client.setCoordinates(x / SCREEN_WIDTH, --y / SCREEN_HEIGHT,
-            biggest_face.width);
 }

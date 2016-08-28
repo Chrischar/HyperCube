@@ -28,6 +28,10 @@ int main(int argc, char** argv)
     screen_loop();
 
     control_thread.join();
+
+    delete screen;
+    delete camera;
+    delete client;
     return 0;
 }
 
