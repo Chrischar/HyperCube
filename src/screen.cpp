@@ -32,13 +32,13 @@ Screen::Screen(void)
     }
 
     glfwMakeContextCurrent(window);
-    
+
 
    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
    GLfloat redDiffuseMaterial[] = {1.0, 0.0, 0.0};
    GLfloat mat_shininess[] = { 50.0 };
    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-   glClearColor (0.0, 0.0, 0.0, 0.0);
+   glClearColor (0.3, 0.007, 0.20, 0.0);
    glShadeModel (GL_SMOOTH);
 
    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
@@ -73,17 +73,17 @@ bool Screen::loop(double x, double y, double z, double angle)
             // z * cos(angle),
             // 0, 0, 0,
             // 0, 1, 0);
-    
-    x *= 3;
-    y *= 3;
+
+    x *= -4;
+    y *= -4;
+    y += 1.0;
     // z *= 3;
     gluLookAt(x
-            , y + 0.5
+            , y
             , z
-            // , x / 2.0
-            // , y / 2.0
-            // , (z + 2) / 2.0
-            , 0, 0, 0
+            , x * 0.7
+            , y * 0.7
+            , z * 0.3
             , 0
             , 1
             , 0
@@ -106,30 +106,47 @@ void Screen::draw(void)
     glLoadIdentity();
 
     glPushMatrix();
-    glTranslatef(0, 0, -0.9);
+    glTranslatef(0, 0, -3.0);
     glutSolidTeapot(0.7);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef( 0.6, 0.6, -1.0);
+    glTranslatef( 0.6, 0.6, -2.0);
     glutSolidCube(0.2);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef( 0.6,-0.6, -1.0);
+    glTranslatef( 0.6,-0.6, -2.0);
     glutSolidCube(0.2);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-0.6, 0.6, -1.0);
+    glTranslatef(-0.6, 0.6, -2.0);
     glutSolidCube(0.2);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-0.6,-0.6, -1.0);
+    glTranslatef(-0.6,-0.6, -2.0);
     glutSolidCube(0.2);
     glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef( 0.6, 0.6, -4.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef( 0.6,-0.6, -4.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef(-0.6, 0.6, -4.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-0.6,-0.6, -4.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
 }

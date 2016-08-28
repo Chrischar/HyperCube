@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-#define INSTABILITY_CONSTANT 0.4
+#define INSTABILITY_CONSTANT 0.3
 
 Client::Client(void)
 {
@@ -28,6 +28,6 @@ void Client::getCoordinates(double* x, double* y, double* z, double* angle)
 {
     *x = this->x;
     *y = this->y;
-    *z = 500.0 / this->z;
+    *z = 300.0 / this->z;
     *angle = this->angle;
 }
