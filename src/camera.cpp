@@ -67,6 +67,6 @@ void Camera::detect_frame(Client& client)
     x -= SCREEN_WIDTH / 2;
     y -= SCREEN_HEIGHT / 2;
 
-    client.setCoordinates(-x / SCREEN_WIDTH, y / SCREEN_HEIGHT,
+    client.setCoordinates(x / SCREEN_WIDTH, --y / SCREEN_HEIGHT,
             biggest_face.width);
 }

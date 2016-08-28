@@ -40,9 +40,9 @@ static void control_loop(void)
 
 static void screen_loop(void)
 {
-    double x, y, z;
+    double x, y, z, angle;
     do {
-        client->getCoordinates(&x, &y, &z);
-        running = screen->loop(x, y, z);
+        client->getCoordinates(&x, &y, &z, &angle);
+        running = screen->loop(x, y, z, angle);
     } while (running);
 }

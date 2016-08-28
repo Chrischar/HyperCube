@@ -24,13 +24,28 @@ Screen::Screen(void)
         return;
     }
 
-    window = glfwCreateWindow(640, 480, "Simple Example", NULL, NULL);
+    window = glfwCreateWindow(1920, 1200, "Simple Example", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return;
     }
 
     glfwMakeContextCurrent(window);
+
+   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+   GLfloat mat_shininess[] = { 50.0 };
+   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+   glClearColor (0.0, 0.0, 0.0, 0.0);
+   glShadeModel (GL_SMOOTH);
+
+   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
+   glEnable(GL_DEPTH_TEST);
+
     glfwSetKeyCallback(window, key_callback);
 }
 
@@ -40,27 +55,18 @@ Screen::~Screen(void)
     glfwTerminate();
 }
 
-bool Screen::loop(double x, double y, double z)
+bool Screen::loop(double x, double y, double z, double angle)
 {
     glfwMakeContextCurrent(window);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glTranslatef(0, 0, 1);
-    glRotatef(z, -y, x, 0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    gluPerspective(30, 1920.0 / 1200, 1, 5);
+    // glOrtho(-1, 1, -1, 1, -3, 3);
+    glRotatef(-angle, y, -x, 0);
+    glTranslatef(0, 0, -z);
 
-    glColor3f(0, 1, 0);
-    glBegin(GL_QUADS);
-        glVertex3f(-1,-1, 1);
-        glVertex3f( 1,-1, 1);
-        glVertex3f( 1, 1, 1);
-        glVertex3f(-1, 1, 1);
-    glEnd();
-
-    glColor3f(1, 0, 0);
-    glutWireTeapot(0.7);
+    draw();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -69,4 +75,15 @@ bool Screen::loop(double x, double y, double z)
         return false;
     }
     return true;
+}
+
+void Screen::draw(void)
+{
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glColor3f(1, 0, 0);
+    glutSolidTeapot(0.7);
+
+    glColor3f(0, 1, 0);
 }

@@ -7,11 +7,12 @@ class Client {
     double x;
     double y;
     double z;
+    double angle;
     std::mutex my_lock;
 public:
     Client (void);
     void setCoordinates(double x, double y, int width);
-    void getCoordinates(double* x, double* y, double* z);
+    void getCoordinates(double* x, double* y, double* z, double* angle);
 };
 
 #endif

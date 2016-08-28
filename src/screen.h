@@ -9,10 +9,11 @@ class Screen {
     static void error_callback(int error, const char* description);
     static void key_callback(GLFWwindow* window, int key, int scancode, int action,
             int mode);
+    void draw(void);
 public:
     Screen(void);
     ~Screen(void);
-    bool loop(double x, double y, double z);
+    bool loop(double x, double y, double z, double anglee);
 };
 
 #endif
