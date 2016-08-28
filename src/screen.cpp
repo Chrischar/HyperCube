@@ -106,13 +106,14 @@ void Screen::draw(void)
     glLoadIdentity();
 
     glPushMatrix();
+    glRotatef(90, 0, 0, 1);
     glTranslatef(0, 0, -3.0);
     glutSolidTeapot(0.7);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef( 0.6, 0.6, -2.0);
-    glutSolidCube(0.2);
+    glutSolidSphere(0.2, 16, 16);
     glPopMatrix();
 
     glPushMatrix();
@@ -122,7 +123,7 @@ void Screen::draw(void)
 
     glPushMatrix();
     glTranslatef(-0.6, 0.6, -2.0);
-    glutSolidCube(0.2);
+    glutSolidSphere(0.2, 16, 16);
     glPopMatrix();
 
     glPushMatrix();
@@ -132,7 +133,7 @@ void Screen::draw(void)
 
     glPushMatrix();
     glTranslatef( 0.6, 0.6, -4.0);
-    glutSolidCube(0.2);
+    glutSolidSphere(0.2, 16, 16);
     glPopMatrix();
 
     glPushMatrix();
@@ -142,7 +143,7 @@ void Screen::draw(void)
 
     glPushMatrix();
     glTranslatef(-0.6, 0.6, -4.0);
-    glutSolidCube(0.2);
+    glutSolidSphere(0.2, 16, 16);
     glPopMatrix();
 
     glPushMatrix();
