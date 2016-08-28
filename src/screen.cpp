@@ -61,10 +61,9 @@ bool Screen::loop(double x, double y, double z, double angle)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(30, 1920.0 / 1200, 1, 5);
-    // glOrtho(-1, 1, -1, 1, -3, 3);
-    glRotatef(-angle, y, -x, 0);
+    gluPerspective(30, 1920.0 / 1200, 1, 10);
     glTranslatef(0, 0, -z);
+    glRotatef(-angle, y, -x, 0);
 
     draw();
 
@@ -82,8 +81,26 @@ void Screen::draw(void)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glColor3f(1, 0, 0);
     glutSolidTeapot(0.7);
 
-    glColor3f(0, 1, 0);
+    glPushMatrix();
+    glTranslatef( 0.6, 0.6, -1.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef( 0.6,-0.6, -1.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-0.6, 0.6, -1.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-0.6,-0.6, -1.0);
+    glutSolidCube(0.2);
+    glPopMatrix();
+
 }

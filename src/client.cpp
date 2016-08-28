@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-#define INSTABILITY_CONSTANT 0.6
+#define INSTABILITY_CONSTANT 0.4
 
 Client::Client(void)
 {
